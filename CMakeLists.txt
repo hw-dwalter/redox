@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 2.8.4)
 project(redox)
 
+# Use GNUInstallDirs in order to enforce lib64 if needed
+include(GNUInstallDirs)
+
 set(REDOX_VERSION_MAJOR 0)
 set(REDOX_VERSION_MINOR 3)
 set(REDOX_VERSION_PATCH 0)
@@ -192,27 +195,27 @@ endif()
 
 if (lib)
   # Install the dynamic library to /usr/lib[64]
-  install(TARGETS redox DESTINATION lib${LIB_SUFFIX})
+  install(TARGETS redox DESTINATION ${CMAKE_INSTALL_LIBDIR})
 endif()
 
 if (static_lib)
   # Install the static library to /usr/lib[64]
-  install(TARGETS redox_static DESTINATION lib${LIB_SUFFIX})
+  install(TARGETS redox_static DESTINATION ${CMAKE_INSTALL_LIBDIR})
 endif()
 
 # Install the headers into /usr/include/redox
-install(FILES ${INC_REDOX_CORE} DESTINATION include/redox)
-install(FILES ${INC_REDOX_UTILS} DESTINATION include/redox/utils)
+install(FILES ${INC_REDOX_CORE} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/redox)
+install(FILES ${INC_REDOX_UTILS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/redox/utils)
 
 # Install the top-level header directly into /usr/include
-install(FILES ${INC_REDOX_WRAPPER} DESTINATION include)
+install(FILES ${INC_REDOX_WRAPPER} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/)
 
 # ---------------------------------------------------------
 # Create system package (make package)
 # ---------------------------------------------------------
 
 # Determine build architecture
-execute_process(COMMAND uname -m COMMAND tr -d '\n' OUTPUT_VARIABLE ARCHITECTURE)
+execute_process(COMMAND dpkg --print-architecture COMMAND tr -d '\n' OUTPUT_VARIABLE ARCHITECTURE)
 message("Building for ${ARCHITECTURE}")
 
 # build CPack driven installer packages
@@ -235,5 +238,5 @@ set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "${ARCHITECTURE}")
 # RPM specific fields
 set(CPACK_RPM_PACKAGE_ARCHITECTURE "${ARCHITECTURE}")
 # Select CPack generators
-set(CPACK_GENERATOR "DEB" "RPM")
+set(CPACK_GENERATOR "DEB")
 include(CPack)
